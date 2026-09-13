@@ -701,8 +701,10 @@
       setMessage('🎉 全ペアを見つけました！', 'clear');
 
       // プラットフォームにスコアを送信
+      // scores は { [uuid]: number } 形式で渡す（READMEの仕様に従う）
       const winnerId = GamePlazaSDK.localPlayer?.uuid || null;
-      GamePlazaSDK.sendResult(winnerId, { score });
+      const scores = winnerId ? { [winnerId]: score } : {};
+      GamePlazaSDK.sendResult(winnerId, scores);
     }
 
     // ===== UI更新 =====
