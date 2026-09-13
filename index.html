@@ -1,847 +1,742 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>カジノ ルーレット</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>神経衰弱 — チームみらい</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
   <style>
-    /* ===== リセット & ベース ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #0a2e1a;
-      background-image:
-        radial-gradient(ellipse at top, #0d4a29 0%, #0a2e1a 60%);
-      color: #f0e6c8;
-      font-family: 'Georgia', serif;
+      background: #e8f8f4;
+      font-family: 'Nunito', sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      padding: 24px 16px 48px;
+      color: #1a4a3a;
+    }
+
+    /* ===== ヘッダー ===== */
+    header {
+      text-align: center;
+      margin-bottom: 20px;
     }
 
     h1 {
-      font-size: 2.4rem;
-      letter-spacing: 0.15em;
-      color: #f5d060;
-      text-shadow: 0 0 18px #f5d06088;
-      margin-bottom: 6px;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #0f9473;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
     }
 
-    .subtitle {
-      font-size: 0.9rem;
-      color: #a0c8a0;
-      letter-spacing: 0.1em;
-      margin-bottom: 24px;
-    }
-
-    /* ===== メインレイアウト ===== */
-    .game-wrapper {
-      display: flex;
-      gap: 32px;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-      max-width: 1100px;
-    }
-
-    /* ===== ホイールエリア ===== */
-    .wheel-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .wheel-container {
-      position: relative;
-      width: 360px;
-      height: 360px;
-    }
-
-    #wheelCanvas {
-      border-radius: 50%;
-      box-shadow:
-        0 0 0 6px #8b6914,
-        0 0 0 10px #f5d060,
-        0 0 0 14px #8b6914,
-        0 0 40px #00000088;
-    }
-
-    /* ポインター（矢印） */
-    .pointer {
-      position: absolute;
-      top: 50%;
-      right: -22px;
-      transform: translateY(-50%);
-      width: 0;
-      height: 0;
-      border-top: 16px solid transparent;
-      border-bottom: 16px solid transparent;
-      border-right: 36px solid #f5d060;
-      filter: drop-shadow(0 0 6px #f5d060aa);
-      z-index: 10;
-    }
-
-    /* ===== スピンボタン ===== */
-    #spinBtn {
-      background: linear-gradient(135deg, #c8960c, #f5d060, #c8960c);
-      border: none;
-      border-radius: 50px;
-      color: #1a0a00;
-      cursor: pointer;
-      font-family: 'Georgia', serif;
-      font-size: 1.1rem;
-      font-weight: bold;
-      letter-spacing: 0.1em;
-      padding: 14px 48px;
-      box-shadow: 0 4px 16px #00000066, inset 0 1px 0 #fff8;
-      transition: transform 0.1s, box-shadow 0.1s;
-    }
-
-    #spinBtn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px #00000088, inset 0 1px 0 #fff8;
-    }
-
-    #spinBtn:active:not(:disabled) {
-      transform: translateY(1px);
-      box-shadow: 0 2px 8px #00000066;
-    }
-
-    #spinBtn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* ===== 結果表示 ===== */
-    .result-display {
-      background: #000a;
-      border: 2px solid #f5d06055;
-      border-radius: 12px;
-      padding: 12px 24px;
-      text-align: center;
-      min-width: 200px;
-    }
-
-    .result-display .label {
-      font-size: 0.75rem;
-      color: #a0c8a0;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-    }
-
-    .result-display .number {
-      font-size: 3rem;
-      font-weight: bold;
-      line-height: 1;
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .result-display .result-text {
-      font-size: 0.95rem;
-      min-height: 22px;
-      color: #f5d060;
-    }
-
-    /* ===== ベットエリア ===== */
-    .bet-section {
-      flex: 1;
-      min-width: 300px;
-      max-width: 480px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    /* 残高 */
-    .balance-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #000a;
-      border: 1px solid #f5d06044;
-      border-radius: 10px;
-      padding: 12px 20px;
-    }
-
-    .balance-bar .label {
-      font-size: 0.8rem;
-      color: #a0c8a0;
-      letter-spacing: 0.1em;
-    }
-
-    .balance-bar .amount {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #f5d060;
-    }
-
-    /* ベット選択パネル */
-    .bet-panel {
-      background: #00180a;
-      border: 1px solid #2a5a2a;
-      border-radius: 12px;
-      padding: 16px;
-    }
-
-    .bet-panel h3 {
+    .tagline {
       font-size: 0.85rem;
-      letter-spacing: 0.15em;
-      color: #a0c8a0;
-      margin-bottom: 12px;
-      text-transform: uppercase;
+      font-weight: 700;
+      color: #4db897;
+      letter-spacing: 0.08em;
     }
 
-    /* チップ選択 */
-    .chips {
+    /* ===== ステータスバー ===== */
+    .status-bar {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .chip {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: 3px dashed;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      transition: transform 0.15s, box-shadow 0.15s;
-      position: relative;
+      margin-bottom: 14px;
     }
 
-    .chip:hover { transform: scale(1.1); }
-
-    .chip.selected {
-      box-shadow: 0 0 0 3px #fff, 0 0 12px #fff8;
-      transform: scale(1.15);
-    }
-
-    .chip[data-value="5"]  { background: #1a6b1a; border-color: #4dff4d; color: #4dff4d; }
-    .chip[data-value="10"] { background: #1a1a6b; border-color: #4d4dff; color: #4d4dff; }
-    .chip[data-value="25"] { background: #6b1a1a; border-color: #ff4d4d; color: #ff4d4d; }
-    .chip[data-value="50"] { background: #6b5a1a; border-color: #ffd04d; color: #ffd04d; }
-    .chip[data-value="100"]{ background: #4a1a6b; border-color: #cc4dff; color: #cc4dff; font-size: 0.75rem; }
-
-    /* ベットグリッド */
-    .bet-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .bet-type-row {
-      display: grid;
-      gap: 6px;
-    }
-
-    .bet-type-row.numbers-row { grid-template-columns: repeat(6, 1fr); }
-    .bet-type-row.outside-row { grid-template-columns: repeat(3, 1fr); }
-    .bet-type-row.color-row   { grid-template-columns: repeat(2, 1fr); }
-
-    .bet-btn {
-      background: #0d3a1a;
-      border: 1px solid #2a6a2a;
-      border-radius: 6px;
-      color: #e8f8e8;
-      cursor: pointer;
-      font-family: 'Georgia', serif;
-      font-size: 0.8rem;
-      padding: 8px 4px;
+    .stat {
+      background: #fff;
+      border: 2px solid #a8e8d4;
+      border-radius: 12px;
+      padding: 8px 18px;
       text-align: center;
-      transition: background 0.15s, transform 0.1s;
-      position: relative;
-      min-height: 40px;
+      min-width: 80px;
     }
 
-    .bet-btn:hover {
-      background: #1a5a2a;
-      transform: scale(1.03);
-    }
-
-    .bet-btn.active {
-      border-color: #f5d060;
-      box-shadow: inset 0 0 8px #f5d06044, 0 0 8px #f5d06044;
-    }
-
-    .bet-btn.red-btn  { background: #5a0d0d; border-color: #cc3333; }
-    .bet-btn.red-btn:hover  { background: #7a1a1a; }
-    .bet-btn.black-btn { background: #111; border-color: #555; }
-    .bet-btn.black-btn:hover { background: #222; }
-    .bet-btn.zero-btn  { background: #0d3a1a; border-color: #4daa4d; color: #4daa4d; }
-
-    /* ベット額バッジ */
-    .bet-badge {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      background: #f5d060;
-      color: #1a0a00;
-      border-radius: 50%;
-      width: 22px;
-      height: 22px;
+    .stat-label {
       font-size: 0.65rem;
-      font-weight: bold;
+      font-weight: 800;
+      color: #4db897;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #0f9473;
+      line-height: 1.2;
+    }
+
+    /* ===== メッセージ ===== */
+    #message {
+      background: #fff;
+      border: 2px solid #a8e8d4;
+      border-radius: 12px;
+      padding: 10px 24px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f9473;
+      margin-bottom: 18px;
+      min-height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
-      display: none;
+      text-align: center;
+      transition: background 0.25s, border-color 0.25s, color 0.25s;
+      max-width: 500px;
+      width: 100%;
     }
 
-    /* ===== 現在のベット一覧 ===== */
-    .current-bets {
-      background: #000a;
-      border: 1px solid #2a5a2a;
+    #message.matched {
+      background: #d4f5e9;
+      border-color: #34c98a;
+      color: #0a6644;
+    }
+    #message.miss {
+      background: #fff8e6;
+      border-color: #f5c842;
+      color: #7a5800;
+    }
+    #message.dummy {
+      background: #ffe8e8;
+      border-color: #f87171;
+      color: #b91c1c;
+    }
+    #message.clear {
+      background: #d4f5e9;
+      border-color: #0f9473;
+      color: #0a6644;
+      font-size: 1.1rem;
+    }
+
+    /* ===== ボード ===== */
+    #board {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      max-width: 780px;
+      width: 100%;
+    }
+
+    @media (max-width: 620px) {
+      #board { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    }
+    @media (max-width: 420px) {
+      #board { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    /* ===== カード ===== */
+    .card {
+      aspect-ratio: 3/4;
+      cursor: pointer;
+      perspective: 700px;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px;
+    }
+
+    .card.flipped .card-inner,
+    .card.matched .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-back,
+    .card-front {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 裏面 */
+    .card-back {
+      background: linear-gradient(145deg, #0f9473, #34c98a);
+      box-shadow: 0 3px 10px rgba(15, 148, 115, 0.3);
+      border: 2px solid #0a7a5e;
+    }
+
+    .card-back-pattern {
+      width: 100%;
+      height: 100%;
       border-radius: 10px;
-      padding: 12px 16px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .current-bets h3 {
-      font-size: 0.8rem;
-      color: #a0c8a0;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
+    .card-back-pattern::after {
+      content: 'みらい';
+      font-size: 0.75rem;
+      font-weight: 900;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.05em;
+      transform: rotate(-20deg);
+    }
+
+    .card:hover:not(.flipped):not(.matched) .card-back {
+      box-shadow: 0 6px 18px rgba(15, 148, 115, 0.45);
+      filter: brightness(1.06);
+    }
+
+    /* 表面 */
+    .card-front {
+      transform: rotateY(180deg);
+      background: #fff;
+      border: 2px solid #a8e8d4;
+      box-shadow: 0 2px 8px rgba(15, 148, 115, 0.12);
+      flex-direction: column;
+      padding: 8px 5px;
+      text-align: center;
+    }
+
+    .card-front .name {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #0f6b54;
+      line-height: 1.4;
+      word-break: keep-all;
+    }
+
+    .card-front .block {
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: #4db897;
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+
+    /* ダミー表面 */
+    .card-front.is-dummy {
+      background: #fff5f5;
+      border-color: #fca5a5;
+    }
+
+    .card-front.is-dummy .name {
+      color: #b91c1c;
+    }
+
+    .card-front.is-dummy .block {
+      color: #f87171;
+    }
+
+    /* マッチ済み */
+    .card.matched .card-front {
+      background: #d4f5e9;
+      border-color: #34c98a;
+      opacity: 0.7;
+    }
+
+    .card.matched .card-front .name {
+      color: #0a6644;
+    }
+
+    /* ===== ボタン ===== */
+    .btn-row {
+      margin-top: 22px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn {
+      background: #0f9473;
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      padding: 11px 30px;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 14px rgba(15, 148, 115, 0.35);
+      transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+    }
+
+    .btn:hover {
+      background: #0c7d62;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(15, 148, 115, 0.45);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 8px rgba(15, 148, 115, 0.3);
+    }
+
+    .btn.secondary {
+      background: #fff;
+      color: #0f9473;
+      border: 2px solid #a8e8d4;
+      box-shadow: none;
+    }
+
+    .btn.secondary:hover {
+      background: #e8f8f4;
+      border-color: #0f9473;
+    }
+
+    /* ===== クリアオーバーレイ ===== */
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(232, 248, 244, 0.8);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #overlay.show { display: flex; }
+
+    .overlay-box {
+      background: #fff;
+      border: 3px solid #34c98a;
+      border-radius: 24px;
+      padding: 36px 44px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(15, 148, 115, 0.2);
+      max-width: 340px;
+      width: 90%;
+    }
+
+    .overlay-box h2 {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #0f9473;
       margin-bottom: 8px;
     }
 
-    .bets-list {
-      font-size: 0.85rem;
-      max-height: 100px;
-      overflow-y: auto;
-      color: #c8e8c8;
+    .overlay-box .score-big {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #0f9473;
+      margin: 12px 0 4px;
+      line-height: 1;
     }
 
-    .bets-list:empty::before {
-      content: 'ベットなし';
-      color: #5a8a5a;
-      font-style: italic;
-    }
-
-    .bet-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 3px 0;
-      border-bottom: 1px solid #1a4a1a;
-    }
-
-    .bets-footer {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 8px;
-      font-size: 0.85rem;
-      color: #f5d060;
-    }
-
-    /* クリアボタン */
-    #clearBtn {
-      background: transparent;
-      border: 1px solid #aa3333;
-      border-radius: 6px;
-      color: #ff6666;
-      cursor: pointer;
+    .overlay-box .score-label {
       font-size: 0.8rem;
-      padding: 6px 14px;
-      transition: background 0.15s;
+      font-weight: 700;
+      color: #4db897;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
     }
 
-    #clearBtn:hover { background: #aa333322; }
-
-    /* ===== メッセージ ===== */
-    .message-box {
-      background: #000c;
-      border: 2px solid #f5d06055;
-      border-radius: 10px;
-      padding: 14px 20px;
-      text-align: center;
-      font-size: 1rem;
-      min-height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #f5d060;
-    }
-
-    .message-box.win  { border-color: #4dff4d; color: #4dff4d; }
-    .message-box.lose { border-color: #ff4d4d; color: #ff8888; }
-
-    /* ===== レスポンシブ ===== */
-    @media (max-width: 600px) {
-      .wheel-container { width: 280px; height: 280px; }
-      #wheelCanvas { width: 280px; height: 280px; }
-      h1 { font-size: 1.8rem; }
+    .overlay-box .detail {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1a4a3a;
+      margin-bottom: 4px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🎰 ROULETTE</h1>
-  <p class="subtitle">EUROPEAN ROULETTE — シングルゼロ</p>
+  <header>
+    <h1>チームみらい 神経衰弱</h1>
+    <div class="tagline">同じ名前のカードを見つけよう！ダミーに注意⚠️</div>
+  </header>
 
-  <div class="game-wrapper">
-
-    <!-- ===== ホイール ===== -->
-    <div class="wheel-section">
-      <div class="wheel-container">
-        <canvas id="wheelCanvas" width="360" height="360"></canvas>
-        <div class="pointer"></div>
-      </div>
-
-      <div class="result-display">
-        <div class="label">結果</div>
-        <div class="number" id="resultNumber">—</div>
-        <div class="result-text" id="resultText"></div>
-      </div>
-
-      <button id="spinBtn">▶ SPIN</button>
+  <div class="status-bar">
+    <div class="stat">
+      <div class="stat-label">⏱ 時間</div>
+      <div class="stat-value" id="timerDisplay">0:00</div>
     </div>
+    <div class="stat">
+      <div class="stat-label">🔄 手数</div>
+      <div class="stat-value" id="turnsDisplay">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">✅ ペア</div>
+      <div class="stat-value" id="pairsDisplay">0/12</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">⚠️ ダミー</div>
+      <div class="stat-value" id="dummyDisplay">0/3</div>
+    </div>
+  </div>
 
-    <!-- ===== ベットエリア ===== -->
-    <div class="bet-section">
+  <div id="message">カードをめくってペアを探してください！</div>
 
-      <div class="balance-bar">
-        <span class="label">💰 残高</span>
-        <span class="amount" id="balanceDisplay">$1,000</span>
+  <div id="board"></div>
+
+  <div class="btn-row">
+    <button class="btn secondary" id="restartBtn">もう一度</button>
+    <button class="btn" id="closeBtn">ゲームを終了</button>
+  </div>
+
+  <!-- クリア画面 -->
+  <div id="overlay">
+    <div class="overlay-box">
+      <h2>クリア！🎉</h2>
+      <div class="score-big" id="finalScore">0</div>
+      <div class="score-label">SCORE</div>
+      <div class="detail" id="finalTurns">手数: —</div>
+      <div class="detail" id="finalDummy">ダミー踏み: —</div>
+      <div class="detail" id="finalTime">タイム: —</div>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="initGame()">もう一度</button>
+        <button class="btn" id="overlayCloseBtn">終了</button>
       </div>
-
-      <div class="bet-panel">
-        <h3>🎲 チップを選んでベット</h3>
-
-        <!-- チップ -->
-        <div class="chips">
-          <div class="chip" data-value="5">$5</div>
-          <div class="chip" data-value="10">$10</div>
-          <div class="chip selected" data-value="25">$25</div>
-          <div class="chip" data-value="50">$50</div>
-          <div class="chip" data-value="100">$100</div>
-        </div>
-
-        <!-- ベットグリッド -->
-        <div class="bet-grid">
-
-          <!-- 0 -->
-          <div class="bet-type-row" style="grid-template-columns: 1fr;">
-            <button class="bet-btn zero-btn" data-type="number" data-value="0">0</button>
-          </div>
-
-          <!-- 1〜12, 13〜24, 25〜36（ダズン） -->
-          <div class="bet-type-row numbers-row">
-            <button class="bet-btn" data-type="number" data-value="1">1</button>
-            <button class="bet-btn" data-type="number" data-value="2">2</button>
-            <button class="bet-btn" data-type="number" data-value="3">3</button>
-            <button class="bet-btn" data-type="number" data-value="4">4</button>
-            <button class="bet-btn" data-type="number" data-value="5">5</button>
-            <button class="bet-btn" data-type="number" data-value="6">6</button>
-          </div>
-          <div class="bet-type-row numbers-row">
-            <button class="bet-btn" data-type="number" data-value="7">7</button>
-            <button class="bet-btn" data-type="number" data-value="8">8</button>
-            <button class="bet-btn" data-type="number" data-value="9">9</button>
-            <button class="bet-btn" data-type="number" data-value="10">10</button>
-            <button class="bet-btn" data-type="number" data-value="11">11</button>
-            <button class="bet-btn" data-type="number" data-value="12">12</button>
-          </div>
-          <div class="bet-type-row numbers-row">
-            <button class="bet-btn" data-type="number" data-value="13">13</button>
-            <button class="bet-btn" data-type="number" data-value="14">14</button>
-            <button class="bet-btn" data-type="number" data-value="15">15</button>
-            <button class="bet-btn" data-type="number" data-value="16">16</button>
-            <button class="bet-btn" data-type="number" data-value="17">17</button>
-            <button class="bet-btn" data-type="number" data-value="18">18</button>
-          </div>
-          <div class="bet-type-row numbers-row">
-            <button class="bet-btn" data-type="number" data-value="19">19</button>
-            <button class="bet-btn" data-type="number" data-value="20">20</button>
-            <button class="bet-btn" data-type="number" data-value="21">21</button>
-            <button class="bet-btn" data-type="number" data-value="22">22</button>
-            <button class="bet-btn" data-type="number" data-value="23">23</button>
-            <button class="bet-btn" data-type="number" data-value="24">24</button>
-          </div>
-          <div class="bet-type-row numbers-row">
-            <button class="bet-btn" data-type="number" data-value="25">25</button>
-            <button class="bet-btn" data-type="number" data-value="26">26</button>
-            <button class="bet-btn" data-type="number" data-value="27">27</button>
-            <button class="bet-btn" data-type="number" data-value="28">28</button>
-            <button class="bet-btn" data-type="number" data-value="29">29</button>
-            <button class="bet-btn" data-type="number" data-value="30">30</button>
-          </div>
-          <div class="bet-type-row numbers-row">
-            <button class="bet-btn" data-type="number" data-value="31">31</button>
-            <button class="bet-btn" data-type="number" data-value="32">32</button>
-            <button class="bet-btn" data-type="number" data-value="33">33</button>
-            <button class="bet-btn" data-type="number" data-value="34">34</button>
-            <button class="bet-btn" data-type="number" data-value="35">35</button>
-            <button class="bet-btn" data-type="number" data-value="36">36</button>
-          </div>
-
-          <!-- アウトサイドベット -->
-          <div class="bet-type-row outside-row">
-            <button class="bet-btn" data-type="dozen" data-value="1st">1st 12</button>
-            <button class="bet-btn" data-type="dozen" data-value="2nd">2nd 12</button>
-            <button class="bet-btn" data-type="dozen" data-value="3rd">3rd 12</button>
-          </div>
-          <div class="bet-type-row outside-row">
-            <button class="bet-btn" data-type="half" data-value="low">1〜18</button>
-            <button class="bet-btn" data-type="even-odd" data-value="even">偶数</button>
-            <button class="bet-btn" data-type="even-odd" data-value="odd">奇数</button>
-          </div>
-          <div class="bet-type-row color-row">
-            <button class="bet-btn red-btn" data-type="color" data-value="red">🔴 RED</button>
-            <button class="bet-btn black-btn" data-type="color" data-value="black">⚫ BLACK</button>
-          </div>
-          <div class="bet-type-row outside-row" style="grid-template-columns: 1fr;">
-            <button class="bet-btn" data-type="half" data-value="high">19〜36</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 現在のベット -->
-      <div class="current-bets">
-        <h3>現在のベット</h3>
-        <div class="bets-list" id="betsList"></div>
-        <div class="bets-footer">
-          <span>合計: <strong id="totalBetDisplay">$0</strong></span>
-          <button id="clearBtn">クリア</button>
-        </div>
-      </div>
-
-      <!-- メッセージ -->
-      <div class="message-box" id="messageBox">チップを選んでベットしてください</div>
-
     </div>
   </div>
 
   <script>
-    // ===== 定数 =====
-    const WHEEL_NUMBERS = [
-      0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,
-      5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26
+    // ============================================================
+    // Game Plaza Platform SDK
+    // 外部ゲームがプラットフォームと通信するための共通インターフェース
+    // ============================================================
+
+    /**
+     * プラットフォーム通信SDK
+     * - プラットフォームからのゲーム開始メッセージを受信
+     * - プラットフォームにゲーム結果を送信
+     * - プラットフォームにゲーム終了を通知
+     */
+    const GamePlazaSDK = {
+      /** 受信したプレイヤー情報 */
+      players: [],
+      /** ローカルプレイヤー（操作者） */
+      localPlayer: null,
+      /** ゲームタイプ */
+      gameType: null,
+
+      /**
+       * 初期化: プラットフォームからの game_start メッセージを待ち受ける
+       * @param {function} onGameStart - ゲーム開始時のコールバック
+       */
+      init(onGameStart) {
+        window.addEventListener('message', (event) => {
+          const data = event.data;
+          if (!data || data.type !== 'game_start') return;
+
+          this.players = data.players || [];
+          this.localPlayer = this.players.find(p => p.isLocal) || null;
+          this.gameType = data.gameType;
+
+          if (onGameStart) {
+            onGameStart({
+              gameType: data.gameType,
+              players: this.players,
+              localPlayer: this.localPlayer,
+            });
+          }
+        });
+      },
+
+      /**
+       * ゲーム結果を送信してプラットフォームに通知する
+       * @param {string|null} winnerId - 勝者のUUID（引き分けの場合はnull）
+       * @param {Object} [scores] - スコア情報（任意）
+       */
+      sendResult(winnerId, scores = {}) {
+        window.parent.postMessage({
+          type: 'game_result',
+          winnerId: winnerId,
+          scores: scores,
+        }, '*');
+      },
+
+      /**
+       * ゲームを閉じることをプラットフォームに通知する
+       * （結果を送らずに閉じたい場合に使用）
+       */
+      sendClose() {
+        window.parent.postMessage({ type: 'game_close' }, '*');
+      },
+    };
+
+    // ============================================================
+    // ゲームロジック（ここを書き換えてゲームを実装する）
+    // ============================================================
+
+    // ===== データ =====
+    const MEMBERS = [
+      { id: 'anno',        name: '安野貴博',      block: '参院議員・党首' },
+      { id: 'hayashi',     name: '林たくみ',      block: '東北' },
+      { id: 'mutou',       name: '武藤かず子',    block: '北関東' },
+      { id: 'kawai',       name: '河合みちお',    block: '南関東' },
+      { id: 'yamada',      name: '山田えり',      block: '南関東' },
+      { id: 'kobayashi',   name: '小林しゅうへい', block: '南関東' },
+      { id: 'takayama',    name: '高山さとし',    block: '東京' },
+      { id: 'mineshima',   name: 'みねしま侑也',  block: '東京' },
+      { id: 'usami',       name: 'うさみ登',      block: '東京' },
+      { id: 'tsuchibashi', name: '土橋あきひろ',  block: '東京' },
+      { id: 'suda',        name: '須田えいたろう', block: '東海' },
+      { id: 'furukawa',    name: '古川あおい',    block: '九州' },
     ];
 
-    const RED_NUMBERS = new Set([
-      1,3,5,7,9,12,14,16,18,21,23,25,27,30,32,34,36
-    ]);
-
-    const PAYOUTS = {
-      number:   35, // ストレート
-      dozen:     2,
-      half:      1,
-      'even-odd':1,
-      color:     1,
-    };
-
-    const BET_LABELS = {
-      number: n => `番号 ${n}`,
-      dozen:  v => ({ '1st':'1st 12', '2nd':'2nd 12', '3rd':'3rd 12' }[v]),
-      half:   v => v === 'low' ? '1〜18' : '19〜36',
-      'even-odd': v => v === 'even' ? '偶数' : '奇数',
-      color:  v => v === 'red' ? '🔴 RED' : '⚫ BLACK',
-    };
+    // ダミー（ペアなし、各1枚のみ）
+    const DUMMIES = [
+      { id: 'takaichi', name: '高市早苗',   block: '自民党総裁' },
+      { id: 'tamaki',   name: '玉木雄一郎', block: '国民民主党' },
+      { id: 'fujita',   name: '藤田文武',   block: '日本維新の会' },
+    ];
 
     // ===== 状態 =====
-    let balance    = 1000;
-    let bets       = [];        // { type, value, amount }
-    let spinning   = false;
-    let chipValue  = 25;
-    let rotation   = 0;        // 現在のホイール角度（ラジアン）
+    let cards = [];
+    let flipped = [];
+    let turns = 0;
+    let pairs = 0;
+    let dummyHits = 0;
+    let locked = false;
+    let timerInterval = null;
+    let seconds = 0;
+    let timerStarted = false;
 
-    // ===== Canvas =====
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx    = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    const cx = W / 2, cy = H / 2;
-    const OUTER_R = W / 2 - 4;
-    const INNER_R = OUTER_R * 0.28;
-
-    function getColor(num) {
-      if (num === 0) return '#1a8a1a';
-      return RED_NUMBERS.has(num) ? '#cc2222' : '#111111';
-    }
-
-    function drawWheel(angle) {
-      ctx.clearRect(0, 0, W, H);
-      const total = WHEEL_NUMBERS.length;
-      const sliceAngle = (2 * Math.PI) / total;
-
-      // 外枠
-      ctx.beginPath();
-      ctx.arc(cx, cy, OUTER_R + 3, 0, 2 * Math.PI);
-      ctx.fillStyle = '#5a3a00';
-      ctx.fill();
-
-      // スライス
-      WHEEL_NUMBERS.forEach((num, i) => {
-        const start = angle + i * sliceAngle - Math.PI / 2;
-        const end   = start + sliceAngle;
-
-        // 扇形
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, OUTER_R, start, end);
-        ctx.closePath();
-        ctx.fillStyle = getColor(num);
-        ctx.fill();
-        ctx.strokeStyle = '#8b6914';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
-        // 数字
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(start + sliceAngle / 2);
-        ctx.translate(OUTER_R * 0.78, 0);
-        ctx.rotate(Math.PI / 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = `bold ${W * 0.042}px Georgia`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(String(num), 0, 0);
-        ctx.restore();
-      });
-
-      // 中心円（木目調）
-      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, INNER_R);
-      grad.addColorStop(0, '#c8820a');
-      grad.addColorStop(1, '#6b3a00');
-      ctx.beginPath();
-      ctx.arc(cx, cy, INNER_R, 0, 2 * Math.PI);
-      ctx.fillStyle = grad;
-      ctx.fill();
-      ctx.strokeStyle = '#f5d060';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      // 中心ボルト
-      ctx.beginPath();
-      ctx.arc(cx, cy, 8, 0, 2 * Math.PI);
-      ctx.fillStyle = '#f5d060';
-      ctx.fill();
-    }
-
-    drawWheel(rotation);
-
-    // ===== スピンアニメーション =====
-    function spinWheel(targetIndex) {
-      return new Promise(resolve => {
-        const total       = WHEEL_NUMBERS.length;
-        const sliceAngle  = (2 * Math.PI) / total;
-        // ポインターは右（0度）→ ホイール上でその位置の数字が当選
-        // 目標角度: targetIndexのスライス中央がポインター（右=0度）に来るように
-        const targetAngle = -(targetIndex * sliceAngle + sliceAngle / 2);
-        // 追加回転（5〜8周）
-        const extraSpins  = (5 + Math.random() * 3) * 2 * Math.PI;
-        const fullTarget  = targetAngle + Math.ceil(extraSpins / (2 * Math.PI)) * 2 * Math.PI;
-
-        const startAngle  = rotation;
-        const duration    = 4000 + Math.random() * 1500;
-        const startTime   = performance.now();
-
-        function easeOut(t) {
-          return 1 - Math.pow(1 - t, 4);
-        }
-
-        function frame(now) {
-          const elapsed = now - startTime;
-          const t       = Math.min(elapsed / duration, 1);
-          const eased   = easeOut(t);
-          rotation      = startAngle + (fullTarget - startAngle) * eased;
-          drawWheel(rotation);
-
-          if (t < 1) {
-            requestAnimationFrame(frame);
-          } else {
-            rotation = targetAngle % (2 * Math.PI);
-            drawWheel(rotation);
-            resolve();
-          }
-        }
-        requestAnimationFrame(frame);
-      });
-    }
-
-    // ===== 当選判定 =====
-    function checkWin(winNum, bet) {
-      const { type, value } = bet;
-      if (winNum === 0 && type !== 'number') return false;
-      switch (type) {
-        case 'number':   return parseInt(value) === winNum;
-        case 'dozen':
-          if (value === '1st') return winNum >= 1  && winNum <= 12;
-          if (value === '2nd') return winNum >= 13 && winNum <= 24;
-          if (value === '3rd') return winNum >= 25 && winNum <= 36;
-          break;
-        case 'half':
-          if (value === 'low')  return winNum >= 1  && winNum <= 18;
-          if (value === 'high') return winNum >= 19 && winNum <= 36;
-          break;
-        case 'even-odd':
-          if (value === 'even') return winNum % 2 === 0;
-          if (value === 'odd')  return winNum % 2 === 1;
-          break;
-        case 'color':
-          if (value === 'red')   return RED_NUMBERS.has(winNum);
-          if (value === 'black') return !RED_NUMBERS.has(winNum) && winNum !== 0;
-          break;
+    // ===== シャッフル =====
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
       }
-      return false;
+      return a;
     }
 
-    // ===== UI 更新 =====
-    function updateBalanceDisplay() {
-      document.getElementById('balanceDisplay').textContent =
-        '$' + balance.toLocaleString();
+    // ===== タイマー =====
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        seconds++;
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        document.getElementById('timerDisplay').textContent =
+          `${m}:${s.toString().padStart(2, '0')}`;
+      }, 1000);
     }
 
-    function updateBetsList() {
-      const list = document.getElementById('betsList');
-      list.innerHTML = '';
-      let total = 0;
-      bets.forEach(b => {
-        total += b.amount;
-        const item = document.createElement('div');
-        item.className = 'bet-item';
-        item.innerHTML = `<span>${BET_LABELS[b.type](b.value)}</span><span>$${b.amount}</span>`;
-        list.appendChild(item);
+    function stopTimer() { clearInterval(timerInterval); }
+
+    // ===== 初期化 =====
+    function initGame() {
+      document.getElementById('overlay').classList.remove('show');
+      turns = 0;
+      pairs = 0;
+      dummyHits = 0;
+      seconds = 0;
+      timerStarted = false;
+      flipped = [];
+      locked = false;
+      clearInterval(timerInterval);
+      document.getElementById('timerDisplay').textContent = '0:00';
+      updateStats();
+      setMessage('カードをめくってペアを探してください！', '');
+
+      // 各議員を2枚ずつ生成
+      const deck = [];
+      MEMBERS.forEach(m => {
+        deck.push({ uid: `${m.id}_0`, pairId: m.id, name: m.name, block: m.block, dummy: false, flipped: false, matched: false });
+        deck.push({ uid: `${m.id}_1`, pairId: m.id, name: m.name, block: m.block, dummy: false, flipped: false, matched: false });
       });
-      document.getElementById('totalBetDisplay').textContent = '$' + total;
+
+      // ダミーは各1枚のみ
+      DUMMIES.forEach(d => {
+        deck.push({ uid: `dummy_${d.id}`, pairId: null, name: d.name, block: d.block, dummy: true, flipped: false, matched: false });
+      });
+
+      cards = shuffle(deck);
+      renderBoard();
     }
 
-    function setMessage(text, cls = '') {
-      const box = document.getElementById('messageBox');
-      box.textContent = text;
-      box.className = 'message-box ' + cls;
+    // ===== ボード描画 =====
+    function renderBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      cards.forEach((card, idx) => {
+        const el = document.createElement('div');
+        el.className = 'card' +
+          (card.flipped ? ' flipped' : '') +
+          (card.matched ? ' matched' : '');
+        el.dataset.idx = idx;
+
+        const inner = document.createElement('div');
+        inner.className = 'card-inner';
+
+        // 裏面
+        const back = document.createElement('div');
+        back.className = 'card-back';
+        const backPattern = document.createElement('div');
+        backPattern.className = 'card-back-pattern';
+        back.appendChild(backPattern);
+
+        // 表面
+        const front = document.createElement('div');
+        front.className = 'card-front' + (card.dummy ? ' is-dummy' : '');
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'name';
+        nameEl.textContent = card.name;
+
+        const blockEl = document.createElement('div');
+        blockEl.className = 'block';
+        blockEl.textContent = card.block;
+
+        front.appendChild(nameEl);
+        front.appendChild(blockEl);
+        inner.appendChild(back);
+        inner.appendChild(front);
+        el.appendChild(inner);
+
+        el.addEventListener('click', () => onCardClick(idx));
+        board.appendChild(el);
+      });
     }
 
-    // ===== チップ選択 =====
-    document.querySelectorAll('.chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-        chip.classList.add('selected');
-        chipValue = parseInt(chip.dataset.value);
-      });
-    });
+    // ===== カードクリック =====
+    function onCardClick(idx) {
+      if (locked) return;
+      const card = cards[idx];
+      if (card.flipped || card.matched) return;
+      if (flipped.length >= 2) return;
 
-    // ===== ベットボタン =====
-    document.querySelectorAll('.bet-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (spinning) return;
-        const type  = btn.dataset.type;
-        const value = btn.dataset.value;
+      // 最初のクリックでタイマースタート
+      if (!timerStarted) {
+        timerStarted = true;
+        startTimer();
+      }
 
-        if (chipValue > balance) {
-          setMessage('残高が足りません！', 'lose');
-          return;
-        }
+      card.flipped = true;
+      document.querySelectorAll('.card')[idx].classList.add('flipped');
+      flipped.push(idx);
 
-        balance -= chipValue;
-        updateBalanceDisplay();
+      if (flipped.length === 2) {
+        turns++;
+        updateStats();
+        locked = true;
+        setTimeout(checkPair, 900);
+      }
+    }
 
-        // 同じベットがあれば加算
-        const existing = bets.find(b => b.type === type && b.value === value);
-        if (existing) {
-          existing.amount += chipValue;
-        } else {
-          bets.push({ type, value, amount: chipValue });
-        }
+    // ===== ペア判定 =====
+    function checkPair() {
+      const [i1, i2] = flipped;
+      const c1 = cards[i1];
+      const c2 = cards[i2];
+      const cardEls = document.querySelectorAll('.card');
 
-        btn.classList.add('active');
-        updateBetsList();
-        setMessage(`${BET_LABELS[type](value)} に $${chipValue} をベット！`);
-      });
-    });
-
-    // ===== クリア =====
-    document.getElementById('clearBtn').addEventListener('click', () => {
-      if (spinning) return;
-      // ベット額を返金
-      const total = bets.reduce((s, b) => s + b.amount, 0);
-      balance += total;
-      bets = [];
-      document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('active'));
-      updateBalanceDisplay();
-      updateBetsList();
-      setMessage('ベットをクリアしました');
-    });
-
-    // ===== スピン =====
-    document.getElementById('spinBtn').addEventListener('click', async () => {
-      if (spinning) return;
-      if (bets.length === 0) {
-        setMessage('先にベットしてください！', 'lose');
+      // どちらかダミー
+      if (c1.dummy || c2.dummy) {
+        dummyHits++;
+        const dummyName = c1.dummy ? c1.name : c2.name;
+        setMessage(`🚨 ダミー！「${dummyName}」はチームみらいじゃないよ！`, 'dummy');
+        setTimeout(() => {
+          c1.flipped = false;
+          c2.flipped = false;
+          cardEls[i1].classList.remove('flipped');
+          cardEls[i2].classList.remove('flipped');
+          flipped = [];
+          locked = false;
+          updateStats();
+        }, 1100);
         return;
       }
 
-      spinning = true;
-      document.getElementById('spinBtn').disabled = true;
-      document.getElementById('resultNumber').textContent = '…';
-      document.getElementById('resultText').textContent   = '';
-      setMessage('スピン中…');
+      // ペア成立
+      if (c1.pairId === c2.pairId) {
+        c1.matched = true;
+        c2.matched = true;
+        cardEls[i1].classList.add('matched');
+        cardEls[i2].classList.add('matched');
+        pairs++;
+        flipped = [];
+        locked = false;
+        updateStats();
+        setMessage(`✅ ペア成立！「${c1.name}」`, 'matched');
 
-      // 当選番号をランダムに決定
-      const winIndex = Math.floor(Math.random() * WHEEL_NUMBERS.length);
-      const winNum   = WHEEL_NUMBERS[winIndex];
-
-      await spinWheel(winIndex);
-
-      // 色
-      const color = winNum === 0 ? 'green' : RED_NUMBERS.has(winNum) ? 'red' : 'black';
-      const colorLabel = winNum === 0 ? '🟢 GREEN' : RED_NUMBERS.has(winNum) ? '🔴 RED' : '⚫ BLACK';
-      const numEl = document.getElementById('resultNumber');
-      numEl.textContent = winNum;
-      numEl.style.color = winNum === 0 ? '#4dff4d' : RED_NUMBERS.has(winNum) ? '#ff6666' : '#cccccc';
-      document.getElementById('resultText').textContent = colorLabel;
-
-      // 勝敗計算
-      let winnings = 0;
-      bets.forEach(bet => {
-        if (checkWin(winNum, bet)) {
-          winnings += bet.amount * (PAYOUTS[bet.type] + 1); // 賭け金返還 + 配当
+        if (pairs === MEMBERS.length) {
+          stopTimer();
+          setTimeout(showClear, 500);
         }
-      });
-
-      balance += winnings;
-      updateBalanceDisplay();
-
-      const betTotal = bets.reduce((s, b) => s + b.amount, 0);
-      const net      = winnings - betTotal;
-
-      if (winnings > 0) {
-        setMessage(`🎉 当選！ +$${winnings}（純利益 $${net >= 0 ? '+' : ''}${net}）`, 'win');
-      } else {
-        setMessage(`😔 ハズレ… -$${betTotal} でした`, 'lose');
+        return;
       }
 
-      // 破産チェック
-      if (balance <= 0) {
-        setTimeout(() => {
-          if (confirm('残高がなくなりました。リセットしますか？')) {
-            balance = 1000;
-            updateBalanceDisplay();
-            setMessage('残高を $1,000 にリセットしました');
-          }
-        }, 500);
-      }
+      // 不一致
+      setMessage('違います…もう一度！', 'miss');
+      setTimeout(() => {
+        c1.flipped = false;
+        c2.flipped = false;
+        cardEls[i1].classList.remove('flipped');
+        cardEls[i2].classList.remove('flipped');
+        flipped = [];
+        locked = false;
+      }, 800);
+    }
 
-      bets = [];
-      document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('active'));
-      updateBetsList();
-      spinning = false;
-      document.getElementById('spinBtn').disabled = false;
+    // ===== クリア =====
+    function showClear() {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      const timeStr = `${m}:${s.toString().padStart(2, '0')}`;
+      const score = Math.max(0, 1000 - turns * 20 - dummyHits * 50 - seconds * 2);
+
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('finalTurns').textContent = `手数: ${turns} 回`;
+      document.getElementById('finalDummy').textContent = `ダミー踏み: ${dummyHits} 回`;
+      document.getElementById('finalTime').textContent = `タイム: ${timeStr}`;
+      document.getElementById('overlay').classList.add('show');
+      setMessage('🎉 全ペアを見つけました！', 'clear');
+
+      // プラットフォームにスコアを送信
+      const winnerId = GamePlazaSDK.localPlayer?.uuid || null;
+      GamePlazaSDK.sendResult(winnerId, { score });
+    }
+
+    // ===== UI更新 =====
+    function updateStats() {
+      document.getElementById('turnsDisplay').textContent = turns;
+      document.getElementById('pairsDisplay').textContent = `${pairs}/12`;
+      document.getElementById('dummyDisplay').textContent = `${dummyHits}/3`;
+    }
+
+    function setMessage(text, cls) {
+      const el = document.getElementById('message');
+      el.textContent = text;
+      el.className = cls || '';
+    }
+
+    // ===== ボタン =====
+    document.getElementById('restartBtn').addEventListener('click', initGame);
+
+    document.getElementById('closeBtn').addEventListener('click', () => {
+      GamePlazaSDK.sendClose();
     });
 
-    // 初期描画
-    updateBalanceDisplay();
-    updateBetsList();
+    document.getElementById('overlayCloseBtn').addEventListener('click', () => {
+      GamePlazaSDK.sendClose();
+    });
+
+    // ===== SDK初期化 =====
+    GamePlazaSDK.init(({ players, localPlayer }) => {
+      // プラットフォームからゲーム開始通知を受け取ったらゲームを開始
+      initGame();
+    });
+
+    // ローカル確認用：プラットフォームなしでも即スタート
+    initGame();
   </script>
 </body>
 </html>
